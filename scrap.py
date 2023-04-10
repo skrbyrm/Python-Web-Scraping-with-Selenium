@@ -193,6 +193,24 @@ try:
 except Exception as e:
     print(e)
     
+try:
+    # start a transaction
+    with engine.begin() as connection:
+        # execute the multiple CALL statements within the same transaction
+        connection.execute("SET @@session.foreign_key_checks = 0;")
+        connection.execute("CALL data_by_months();")
+        connection.execute("CALL data_by_weeks();")
+        connection.execute("CALL data_by_dates();")
+        connection.execute("CALL data_by_hours();")
+        connection.execute("SET @@session.foreign_key_checks = 1;")
+
+        print("Data updated Successfully!")
+
+except Exception as e:
+    # rollback the transaction if an error occurs
+    print("Error:", e)
+
+    
 df_to_excel(dfall,data_path, 'dfall')
 
 df_error = pd.DataFrame(error_dict)
